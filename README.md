@@ -1,12 +1,20 @@
 # tdx-kb-manager
 
-An Electron application with React and TypeScript
+An Electron application with React and TypeScript. 
 
-## Recommended IDE Setup
+This project primarily interacts with the TeamDynamix KnowledgeBase API and is designed to implement more enhanced workflows that the official client provides.
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## (Planned) Features
+
+- Search and View KnowledgeBase Articles
+- Perform mass actions on selected Articles (Change Category)
+- Add/Remove Tags to Articles
+- Edit Article Summaries
+- Edit Article Names
 
 ## Project Setup
+
+Follows the recommended setup from `electron-vite`, the setup script was used for this project.
 
 ### Install
 
