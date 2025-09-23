@@ -2,7 +2,81 @@ import Versions from '../components/Versions'
 import { useEffect, useState } from 'react'
 import { Article } from '../types/Article'
 
-function KBTable(): React.JSX.Element {
+type ActionsProps = {
+  selectedIds: Set<number>
+}
+
+function Actions({ selectedIds }: ActionsProps): React.JSX.Element {
+  return (
+    <div className="text-sm text-gray-300 cursor-pointer">
+      {selectedIds.size} rows selected • Open action menu
+    </div>
+  )
+}
+
+type KBTableProps = {
+  articles: Article[]
+  selectedIds: Set<number>
+  onToggleRow: (id: number) => void
+  onToggleAll: (checked: boolean) => void
+}
+
+function KBTable({
+  articles,
+  selectedIds,
+  onToggleRow,
+  onToggleAll
+}: KBTableProps): React.JSX.Element {
+  return (
+    <div
+      className="border border-gray-300 rounded"
+      style={{
+        height: '400px',
+        maxHeight: '80vh',
+        overflowY: 'scroll',
+        overflowX: 'auto',
+        display: 'block'
+      }}
+    >
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-100 sticky top-0 z-10">
+          <tr>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                onChange={(e) => onToggleAll(e.target.checked)}
+                checked={selectedIds.size === articles.length && articles.length > 0}
+              />
+            </th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Subject</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Category</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {articles.map((article) => (
+            <tr key={article.ID} className="hover:bg-gray-50 hover:text-black transition-colors">
+              <td className="px-4 py-2">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(article.ID)}
+                  onChange={() => onToggleRow(article.ID)}
+                />
+              </td>
+              <td className="px-4 py-2">{article.ID}</td>
+              <td className="px-4 py-2">{article.Subject}</td>
+              <td className="px-4 py-2">{article.CategoryName}</td>
+              <td className="px-4 py-2">{article.StatusName}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function KBTableEditor(): React.JSX.Element {
   const [articles, setArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -41,66 +115,24 @@ function KBTable(): React.JSX.Element {
     })
   }
 
-  return (
-    <div
-      className="border border-gray-300 rounded"
-      style={{
-        height: '400px',
-        maxHeight: '80vh',
-        overflowY: 'scroll',
-        overflowX: 'auto',
-        display: 'block'
-      }}
-    >
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-100 sticky top-0 z-10">
-          <tr>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedIds(new Set(articles.map((a) => a.ID)))
-                  } else {
-                    setSelectedIds(new Set())
-                  }
-                }}
-                checked={selectedIds.size === articles.length && articles.length > 0}
-              />
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Subject</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Category</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {articles.map((article) => (
-            <tr key={article.ID} className="hover:bg-gray-50 transition-colors">
-              <td className="px-4 py-2">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(article.ID)}
-                  onChange={() => toggleRow(article.ID)}
-                />
-              </td>
-              <td className="px-4 py-2">{article.ID}</td>
-              <td className="px-4 py-2">{article.Subject}</td>
-              <td className="px-4 py-2">{article.CategoryName}</td>
-              <td className="px-4 py-2">{article.StatusName}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+  const toggleAll = (checked: boolean, articles: Article[]): void => {
+    if (checked) {
+      setSelectedIds(new Set(articles.map((a) => a.ID)))
+    } else {
+      setSelectedIds(new Set())
+    }
+  }
 
-function KBTableEditor(): React.JSX.Element {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">KnowledgeBase Table Editor</h1>
-      <KBTable />
+      <Actions selectedIds={selectedIds} />
+      <KBTable
+        articles={articles}
+        selectedIds={selectedIds}
+        onToggleRow={toggleRow}
+        onToggleAll={(checked) => toggleAll(checked, articles)}
+      />
       <Versions></Versions>
     </div>
   )
