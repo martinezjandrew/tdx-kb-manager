@@ -14,6 +14,23 @@ function Actions({ selectedIds }: ActionsProps): React.JSX.Element {
   )
 }
 
+type Column = {
+  id: keyof Article
+  label: string
+}
+
+const availableColumns: Column[] = [
+  { id: 'CategoryName', label: 'Category Name' },
+  { id: 'Subject', label: 'Subject' },
+  { id: 'Summary', label: 'Summary' },
+  { id: 'Status', label: 'Status' },
+  { id: 'IsPublished', label: 'Is Published' },
+  { id: 'IsPublic', label: 'Is Public' },
+  { id: 'Tags', label: 'Tags' },
+  { id: 'CreatedDate', label: 'Created Date' },
+  { id: 'ModifiedDate', label: 'Modified Date' }
+]
+
 type KBTableProps = {
   articles: Article[]
   selectedIds: Set<number>
@@ -27,6 +44,11 @@ function KBTable({
   onToggleRow,
   onToggleAll
 }: KBTableProps): React.JSX.Element {
+  const [visibleCols, setVisibleCols] = useState<string[]>(availableColumns.map((c) => c.id))
+
+  const toggleColumn = (id: string) => {
+    setVisibleCols((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
+  }
   return (
     <div
       className="border border-gray-300 rounded"
@@ -38,40 +60,61 @@ function KBTable({
         display: 'block'
       }}
     >
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-100 sticky top-0 z-10">
-          <tr>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
-              <input
-                type="checkbox"
-                onChange={(e) => onToggleAll(e.target.checked)}
-                checked={selectedIds.size === articles.length && articles.length > 0}
-              />
-            </th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Subject</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Category</th>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {articles.map((article) => (
-            <tr key={article.ID} className="hover:bg-gray-50 hover:text-black transition-colors">
-              <td className="px-4 py-2">
+      <div className="flex gap-2 flext-wrap">
+        {availableColumns.map((col) => (
+          <button
+            key={col.id}
+            onClick={() => toggleColumn(col.id)}
+            className={`x-3 py-1 rounded border ${
+              visibleCols.includes(col.id) ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+            }`}
+          >
+            {col.label}
+          </button>
+        ))}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse border divide-y divide-gray-200">
+          <thead className="bg-gray-600 sticky top-0 z-10">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
                 <input
                   type="checkbox"
-                  checked={selectedIds.has(article.ID)}
-                  onChange={() => onToggleRow(article.ID)}
+                  onChange={(e) => onToggleAll(e.target.checked)}
+                  checked={selectedIds.size === articles.length && articles.length > 0}
                 />
-              </td>
-              <td className="px-4 py-2">{article.ID}</td>
-              <td className="px-4 py-2">{article.Subject}</td>
-              <td className="px-4 py-2">{article.CategoryName}</td>
-              <td className="px-4 py-2">{article.StatusName}</td>
+              </th>
+              {availableColumns
+                .filter((col) => visibleCols.includes(col.id))
+                .map((col) => (
+                  <th key={col.id} className="border border-gray-300 px-4 py-2">
+                    {col.label}
+                  </th>
+                ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {articles.map((article) => (
+              <tr key={article.ID} className="hover:bg-gray-50 hover:text-black transition-colors">
+                <td className="px-4 py-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(article.ID)}
+                    onChange={() => onToggleRow(article.ID)}
+                  />
+                </td>
+                {availableColumns
+                  .filter((col) => visibleCols.includes(col.id))
+                  .map((col) => (
+                    <td key={col.id} className="border border-gray-300 px-4 py-2">
+                      {String(article[col.id as keyof typeof article])}
+                    </td>
+                  ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
