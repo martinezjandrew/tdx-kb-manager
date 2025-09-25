@@ -2,18 +2,6 @@ import Versions from '../components/Versions'
 import { useEffect, useState } from 'react'
 import { Article } from '../types/Article'
 
-type ActionsProps = {
-  selectedIds: Set<number>
-}
-
-function Actions({ selectedIds }: ActionsProps): React.JSX.Element {
-  return (
-    <div className="text-sm text-gray-300 cursor-pointer">
-      {selectedIds.size} rows selected • Open action menu
-    </div>
-  )
-}
-
 type Column = {
   id: keyof Article
   label: string
@@ -46,9 +34,10 @@ function KBTable({
 }: KBTableProps): React.JSX.Element {
   const [visibleCols, setVisibleCols] = useState<string[]>(availableColumns.map((c) => c.id))
 
-  const toggleColumn = (id: string) => {
+  const toggleColumn = (id: string): void => {
     setVisibleCols((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
   }
+
   return (
     <div
       className="border border-gray-300 rounded"
@@ -149,6 +138,26 @@ function KBTableEditor(): React.JSX.Element {
   if (loading) return <p>Loading articles...</p>
   if (error) return <p>Error: {error}</p>
 
+  function Actions(): React.JSX.Element {
+    const [menuVisible, setMenuVisible] = useState<boolean>(false)
+    return (
+      <div
+        className="text-sm text-gray-300 cursor-pointer"
+        onClick={() => setMenuVisible(!menuVisible)}
+      >
+        {selectedIds.size} rows selected • Open action menu
+        {menuVisible && (
+          <ul>
+            {[...selectedIds].map((id) => {
+              const article = articles.find((a) => a.ID === id)
+              return <li key={id}>{article ? article.Subject : `Unknown (${id}`}</li>
+            })}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
   const toggleRow = (id: number): void => {
     setSelectedIds((prev) => {
       const newSet = new Set(prev)
@@ -169,7 +178,7 @@ function KBTableEditor(): React.JSX.Element {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">KnowledgeBase Table Editor</h1>
-      <Actions selectedIds={selectedIds} />
+      <Actions />
       <KBTable
         articles={articles}
         selectedIds={selectedIds}
