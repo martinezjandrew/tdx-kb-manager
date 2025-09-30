@@ -2,15 +2,19 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { fetchArticles } from './api'
-
-// Load environment variables
+import { fetchArticles, getArticlesFromDB, validateApiKey } from './api'
 import * as dotenv from 'dotenv'
 import { saveApiKey, loadApiKey } from './secure-store'
+import { Article } from '../renderer/src/types/Article'
+import { cacheArticle, getArticle, listArticles } from './db'
+
 dotenv.config()
 
-ipcMain.handle('api:fetchArticles', async (_, body) => {
+ipcMain.handle('tdx:fetchArticles', async (_, body) => {
   return fetchArticles(body)
+})
+ipcMain.handle('db:getArticles', async () => {
+  return getArticlesFromDB()
 })
 
 function createWindow(): void {
@@ -59,9 +63,14 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // database api
+  ipcMain.handle('list-articles', () => listArticles())
 
+  ipcMain.handle('get-article', (_, id: number) => getArticle(id))
+
+  ipcMain.handle('cache-article', (_, article: Article) => cacheArticle(article))
+
+  // secure key api
   ipcMain.handle('save-api-key', (_, key: string) => {
     saveApiKey(key)
     return true
@@ -69,6 +78,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle('load-api-key', () => {
     return loadApiKey()
+  })
+
+  ipcMain.handle('validate-api-key', async () => {
+    return await validateApiKey()
   })
 
   createWindow()

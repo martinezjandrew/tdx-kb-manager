@@ -1,10 +1,14 @@
 import { Article } from './Article'
+import { ArticleRow } from './ArticleRow'
 
 declare global {
   interface Window {
     api: {
       fetchArticles: (body: any) => Promise<Article[]>
-      // Add more methods here if needed
+      listArticles: () => Promise<ArticleRow[]>
+      getArticle: (id: number) => Promise<Article>
+      cacheArticle: (article: Article) => Promise<void>
+      validateApiKey: () => Promise<boolean>
     }
     secureStore: {
       saveApiKey: (key: string) => Promive<void>

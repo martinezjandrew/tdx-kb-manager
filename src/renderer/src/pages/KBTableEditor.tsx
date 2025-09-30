@@ -1,6 +1,7 @@
 import Versions from '../components/Versions'
 import { useEffect, useState } from 'react'
 import { Article } from '../types/Article'
+import { ArticleRow } from '@renderer/types/ArticleRow'
 
 type Column = {
   id: keyof Article
@@ -42,8 +43,8 @@ function KBTable({
     <div
       className="border border-gray-300 rounded"
       style={{
-        height: '400px',
-        maxHeight: '80vh',
+        height: '800px',
+        maxHeight: '100vh',
         overflowY: 'scroll',
         overflowX: 'auto',
         display: 'block'
@@ -62,7 +63,7 @@ function KBTable({
           </button>
         ))}
       </div>
-      <div className="overflow-x-auto">
+      <div className="">
         <table className="min-w-full border-collapse border divide-y divide-gray-200">
           <thead className="bg-gray-600 sticky top-0 z-10">
             <tr>
@@ -115,24 +116,28 @@ function KBTableEditor(): React.JSX.Element {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
-    const fetchArticles = async (): Promise<void> => {
+    const fetchFromDb = async (): Promise<void> => {
       setLoading(true)
       setError(null)
 
       try {
-        const data: Article[] = await window.api.fetchArticles({
-          CategoryID: '',
-          ReturnCount: null
-        })
-        setArticles(data)
-      } catch (err: any) {
-        setError(err.message)
+        // metadata
+        const rows: ArticleRow[] = await window.api.listArticles()
+
+        // get full data
+        const fullArticles: Article[] = await Promise.all(
+          rows.map((row) => window.api.getArticle(row.id))
+        )
+
+        setArticles(fullArticles.filter((a): a is Article => a !== null))
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Unkown error')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchArticles()
+    fetchFromDb()
   }, [])
 
   if (loading) return <p>Loading articles...</p>
@@ -150,7 +155,11 @@ function KBTableEditor(): React.JSX.Element {
           <ul>
             {[...selectedIds].map((id) => {
               const article = articles.find((a) => a.ID === id)
-              return <li key={id}>{article ? article.Subject : `Unknown (${id}`}</li>
+              return (
+                <li key={id}>
+                  {article ? `${article.Subject} ${article.Tags}` : `Unknown (${id}`}{' '}
+                </li>
+              )
             })}
           </ul>
         )}
@@ -167,7 +176,7 @@ function KBTableEditor(): React.JSX.Element {
     })
   }
 
-  const toggleAll = (checked: boolean, articles: Article[]): void => {
+  const toggleAll = (checked: boolean): void => {
     if (checked) {
       setSelectedIds(new Set(articles.map((a) => a.ID)))
     } else {
@@ -176,14 +185,14 @@ function KBTableEditor(): React.JSX.Element {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-3/4">
       <h1 className="text-2xl font-bold mb-4">KnowledgeBase Table Editor</h1>
       <Actions />
       <KBTable
         articles={articles}
         selectedIds={selectedIds}
         onToggleRow={toggleRow}
-        onToggleAll={(checked) => toggleAll(checked, articles)}
+        onToggleAll={toggleAll}
       />
       <Versions></Versions>
     </div>

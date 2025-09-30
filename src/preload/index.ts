@@ -1,9 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { Article } from '../renderer/src/types/Article'
 
 // Custom APIs for renderer
 const api = {
-  fetchArticles: (body: any) => ipcRenderer.invoke('api:fetchArticles', body)
+  fetchArticles: (body: any) => ipcRenderer.invoke('tdx:fetchArticles', body),
+  listArticles: () => ipcRenderer.invoke('list-articles'),
+  getArticle: (id: number) => ipcRenderer.invoke('get-article', id),
+  cacheArticle: (article: Article) => ipcRenderer.invoke('cache-article', article),
+  validateApiKey: () => ipcRenderer.invoke('validate-api-key')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
