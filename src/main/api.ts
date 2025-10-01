@@ -1,6 +1,6 @@
 import { Article } from '../renderer/src/types/Article'
 import { loadApiKey } from './secure-store'
-import db, { ArticleRow } from './db'
+import db, { ArticleRow, getArticle } from './db'
 
 const API_URL = 'https://support.stedwards.edu/TDWebApi/api/'
 
@@ -32,6 +32,11 @@ export async function fetchArticles(body: any): Promise<Article[]> {
   const articlesFull: Article[] = []
 
   for (const articleMeta of articles) {
+    const cached = getArticle(articleMeta.ID)
+
+    if (cached && cached.ModifiedDate === articleMeta.ModifiedDate) {
+      continue
+    }
     const detailEndpoint = `${API_URL}/96/knowledgebase/${articleMeta.ID}`
 
     try {
@@ -55,7 +60,9 @@ export async function fetchArticles(body: any): Promise<Article[]> {
     await delay(1000)
   }
 
-  saveArticlesToDB(articlesFull)
+  if (articlesFull.length > 0) {
+    saveArticlesToDB(articlesFull)
+  }
 
   return articles
 }
