@@ -4,6 +4,10 @@ An Electron application with React and TypeScript.
 
 This project primarily interacts with the TeamDynamix KnowledgeBase API and is designed to implement more enhanced workflows that the official client provides.
 
+## Current Status
+
+Currently the project is hard coded to only work with the St. Edward's specific TDX API, but I plan to make it configurable in the future.
+
 ## (Planned) Features
 
 - Search and View KnowledgeBase Articles Metadata
