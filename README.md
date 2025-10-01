@@ -6,8 +6,8 @@ This project primarily interacts with the TeamDynamix KnowledgeBase API and is d
 
 ## (Planned) Features
 
-- Search and View KnowledgeBase Articles
-- Perform mass actions on selected Articles (Change Category)
+- Search and View KnowledgeBase Articles Metadata
+- Perform mass actions on selected Articles (For example: change the category for a group of articles.)
 - Add/Remove Tags to Articles
 - Edit Article Summaries
 - Edit Article Names
@@ -15,6 +15,10 @@ This project primarily interacts with the TeamDynamix KnowledgeBase API and is d
 ## Project Setup
 
 Follows the recommended setup from `electron-vite`, the setup script was used for this project.
+
+Uses `sqlite3` to cache article information to avoid excessive API calls. TDX has a 60 calls per minute limit.
+
+Primarily interacts with the TDX API.
 
 ### Install
 
