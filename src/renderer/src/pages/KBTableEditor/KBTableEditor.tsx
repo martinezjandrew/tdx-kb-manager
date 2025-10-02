@@ -1,7 +1,8 @@
-import Versions from '../components/Versions'
+import Versions from '../../components/Versions'
 import { useEffect, useState } from 'react'
 import { Article } from '../types/Article'
 import { ArticleRow } from '@renderer/types/ArticleRow'
+import KBTableSelectedActionMenu from './KBTableSelectedActionMenu'
 
 type Column = {
   id: keyof Article
@@ -114,6 +115,7 @@ function KBTableEditor(): React.JSX.Element {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [menuVisible, setMenuVisible] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchFromDb = async (): Promise<void> => {
@@ -144,26 +146,23 @@ function KBTableEditor(): React.JSX.Element {
   if (error) return <p>Error: {error}</p>
 
   function Actions(): React.JSX.Element {
-    const [menuVisible, setMenuVisible] = useState<boolean>(false)
+    const selectedArticles = articles.filter((article) => selectedIds.has(article.ID))
+
     return (
-      <div
-        className="text-sm text-gray-300 cursor-pointer"
-        onClick={() => setMenuVisible(!menuVisible)}
-      >
-        {selectedIds.size} rows selected • Open action menu
+      <>
+        {' '}
+        <div className="text-sm text-gray-300 cursor-pointer" onClick={() => setMenuVisible(true)}>
+          {selectedIds.size} rows selected • Open action menu
+        </div>
         {menuVisible && (
-          <ul>
-            {[...selectedIds].map((id) => {
-              const article = articles.find((a) => a.ID === id)
-              return (
-                <li key={id}>
-                  {article ? `${article.Subject} ${article.Tags}` : `Unknown (${id}`}{' '}
-                </li>
-              )
-            })}
-          </ul>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <button onClick={() => setMenuVisible(false)}>CLOSE</button>
+            <div onClick={(e) => e.stopPropagation()}>
+              <KBTableSelectedActionMenu articles={selectedArticles} />
+            </div>
+          </div>
         )}
-      </div>
+      </>
     )
   }
 

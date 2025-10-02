@@ -41,8 +41,3 @@ export class SlidingWindowRateLimiter {
     resolve!()
   }
 }
-
-// Usage
-const limiter = new SlidingWindowRateLimiter(60, 60_000)
-await limiter.acquire()
-// make API call
