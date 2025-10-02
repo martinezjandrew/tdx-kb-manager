@@ -1,11 +1,11 @@
-import { TokenBucket } from './tokenBucket'
 import * as api from './api'
+import { SlidingWindowRateLimiter } from './slidingWindow'
 
-const bucket = new TokenBucket(60, 60)
+const limiter = new SlidingWindowRateLimiter(60, 60_000)
 
 function withRateLimit<T extends (...args: any[]) => Promise<any>>(fn: T): T {
   return (async (...args: Parameters<T>) => {
-    await bucket.removeToken()
+    await limiter.acquire()
     return fn(...args)
   }) as T
 }
