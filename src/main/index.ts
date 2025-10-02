@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv'
 import { saveApiKey, loadApiKey } from './secure-store'
 import { Article } from '../renderer/src/types/Article'
 import { cacheArticle, getArticle, listArticles } from './db'
+import { limitedApi } from './apiManager'
 
 dotenv.config()
 
@@ -16,6 +17,8 @@ ipcMain.handle('tdx:fetchArticles', async (_, body) => {
 ipcMain.handle('db:getArticles', async () => {
   return getArticlesFromDB()
 })
+
+ipcMain.handle('update-article', (event, id, data) => limitedApi.updateArticle(id, data))
 
 function createWindow(): void {
   // Create the browser window.

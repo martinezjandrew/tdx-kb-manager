@@ -4,6 +4,26 @@ import db, { ArticleRow, getArticle } from './db'
 
 const API_URL = 'https://support.stedwards.edu/TDWebApi/api/'
 
+export async function updateArticle(id: number, data: any) {
+  const keyBuffer = loadApiKey()
+  if (!keyBuffer) throw new Error('API key not set!')
+
+  const apiKey = keyBuffer.toString()
+  const endpoint = `${API_URL}/96/knowledgebase/${id}`
+
+  const res = await fetch(endpoint, {
+    method: `PUT`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(data)
+  })
+
+  if (!res.ok) throw new Error(`Failed to update article ${id}: ${res.status}`)
+  return res.json()
+}
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
