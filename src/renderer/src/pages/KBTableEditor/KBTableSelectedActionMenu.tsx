@@ -51,9 +51,7 @@ function KBTableSelectedActionMenu({
       // Update all articles in parallel
       await Promise.all(
         displayedArticles.map((article) =>
-          window.electron.ipcRenderer.invoke('update-article', article.ID, {
-            Tags: article.Tags
-          })
+          window.electron.ipcRenderer.invoke('update-article', article.ID, article)
         )
       )
       onClose()
