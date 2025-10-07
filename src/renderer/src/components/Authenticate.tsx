@@ -37,7 +37,7 @@ function Authenticate({ onClose }: AuthenticateProps): React.JSX.Element {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
       <div className="relative p-20 bg-gray-800 rounded-lg">
         <h1>Authentication!</h1>
         <p>1. Go to this page...</p>

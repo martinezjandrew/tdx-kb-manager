@@ -8,6 +8,7 @@ const api = {
   listArticles: () => ipcRenderer.invoke('list-articles'),
   getArticle: (id: number) => ipcRenderer.invoke('get-article', id),
   cacheArticle: (article: Article) => ipcRenderer.invoke('cache-article', article),
+  saveArticleToDB: (article: Article) => ipcRenderer.invoke('save-article-to-db', article),
   validateApiKey: () => ipcRenderer.invoke('validate-api-key')
 }
 

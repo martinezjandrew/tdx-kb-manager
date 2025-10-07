@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { fetchArticles, getArticlesFromDB, validateApiKey } from './api'
+import { fetchArticles, getArticlesFromDB, validateApiKey, saveArticleToDB } from './api'
 import * as dotenv from 'dotenv'
 import { saveApiKey, loadApiKey } from './secure-store'
 import { Article } from '../renderer/src/types/Article'
@@ -72,6 +72,8 @@ app.whenReady().then(() => {
   ipcMain.handle('get-article', (_, id: number) => getArticle(id))
 
   ipcMain.handle('cache-article', (_, article: Article) => cacheArticle(article))
+
+  ipcMain.handle('save-article-to-db', (_, article: Article) => saveArticleToDB(article))
 
   // secure key api
   ipcMain.handle('save-api-key', (_, key: string) => {

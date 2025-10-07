@@ -8,6 +8,7 @@ declare global {
       listArticles: () => Promise<{ id: number; title: string; last_modified: number }[]>
       getArticle: (id: number) => Promise<Article | null>
       cacheArticle: (article: Article) => Promise<{ success: boolean }>
+      saveArticleToDB: (article: Article) => Promise<void>
       fetchArticles: (body: any) => Promise<Article[]>
       validateApiKey: () => Promise<boolean>
     }

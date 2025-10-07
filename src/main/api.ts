@@ -1,6 +1,6 @@
 import { Article } from '../renderer/src/types/Article'
 import { loadApiKey } from './secure-store'
-import db, { ArticleRow, getArticle } from './db'
+import db, { ArticleRow, getArticle, cacheArticle } from './db'
 
 const API_URL = 'https://support.stedwards.edu/TDWebApi/api/'
 
@@ -21,6 +21,8 @@ export async function updateArticle(id: number, data: any) {
   })
 
   if (!res.ok) throw new Error(`Failed to update article ${id}: ${res.status}`)
+  cacheArticle(data)
+
   return res.json()
 }
 

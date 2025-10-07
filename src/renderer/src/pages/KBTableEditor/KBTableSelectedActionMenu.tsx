@@ -4,17 +4,19 @@ import { useState, useMemo } from 'react'
 type KBTableSelectedActionMenuProps = {
   articles: Article[]
   onClose: () => void
+  onArticlesUpdated?: (articles: Article[]) => void
 }
 
 function KBTableSelectedActionMenu({
   articles,
-  onClose
+  onClose,
+  onArticlesUpdated
 }: KBTableSelectedActionMenuProps): React.JSX.Element {
   const [displayedArticles, setDisplayedArticles] = useState(articles)
   const [newTagInput, setNewTagInput] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const removeArticle = (id: string): void => {
+  const removeArticle = (id: number): void => {
     setDisplayedArticles((prev) => prev.filter((article) => article.ID !== id))
   }
 
@@ -48,16 +50,21 @@ function KBTableSelectedActionMenu({
   const handleSubmit = async (): Promise<void> => {
     setIsSubmitting(true)
     try {
-      // Update all articles in parallel
-      await Promise.all(
+      // 1. Update remote API
+      const updatedArticles = await Promise.all(
         displayedArticles.map((article) =>
           window.electron.ipcRenderer.invoke('update-article', article.ID, article)
         )
       )
+
+      // 3. Notify parent component to update its state
+      onArticlesUpdated?.(updatedArticles)
+
       onClose()
     } catch (error) {
       console.error('Failed to update articles:', error)
-      // Optionally show error toast/message
+      // On error, you might want to refresh to get the true state
+      // For now, we'll just show the error - the parent can decide to refresh
     } finally {
       setIsSubmitting(false)
     }
@@ -93,22 +100,28 @@ function KBTableSelectedActionMenu({
     <div className="bg-blue-950 p-6 rounded-lg shadow-lg max-w-2xl">
       <h2 className="text-white text-lg font-semibold mb-3">Selected Articles</h2>
       <div className="overflow-x-auto mb-6">
-        <ul className="flex gap-2 pb-2">
-          {displayedArticles.map((article: Article) => (
-            <li
-              key={article.ID}
-              className="bg-blue-100 text-blue-900 px-3 py-1 rounded-full flex items-center gap-2 whitespace-nowrap flex-shrink-0"
-            >
-              <span>{article.Subject}</span>
-              <button
-                onClick={() => removeArticle(article.ID)}
-                className="text-gray-600 hover:text-gray-900"
+        {displayedArticles.length === 0 ? (
+          <div className="bg-red-100 text-red-800 px-4 py-2 rounded-lg">
+            No articles selected! This shouldnt happen.
+          </div>
+        ) : (
+          <ul className="flex gap-2 pb-2">
+            {displayedArticles.map((article: Article) => (
+              <li
+                key={article.ID}
+                className="bg-blue-100 text-blue-900 px-3 py-1 rounded-full flex items-center gap-2 whitespace-nowrap flex-shrink-0"
               >
-                ✕
-              </button>
-            </li>
-          ))}
-        </ul>
+                <span>{article.Subject}</span>
+                <button
+                  onClick={() => removeArticle(article.ID)}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <h2 className="text-white text-lg font-semibold mb-2">Actions</h2>
