@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Article } from '../types/Article'
+import { Article } from '../../types/Article'
 import { ArticleRow } from '@renderer/types/ArticleRow'
 import KBTableSelectedActionMenu from './KBTableSelectedActionMenu'
 import { MaterialReactTable, MRT_ColumnDef } from 'material-react-table'

@@ -18,7 +18,7 @@ ipcMain.handle('db:getArticles', async () => {
   return getArticlesFromDB()
 })
 
-ipcMain.handle('update-article', (event, id, data) => limitedApi.updateArticle(id, data))
+ipcMain.handle('update-article', (_event, id, data) => limitedApi.updateArticle(id, data))
 
 function createWindow(): void {
   // Create the browser window.

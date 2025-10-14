@@ -71,7 +71,7 @@ function KBTableSelectedActionMenu({
   }
 
   // Get union (all unique tags) and intersection (only shared tags)
-  const { unionTags, intersectionTags } = useMemo(() => {
+  const { unionTags /*, intersectionTags*/ } = useMemo(() => {
     if (displayedArticles.length === 0) {
       return { unionTags: new Set<string>(), intersectionTags: new Set<string>() }
     }

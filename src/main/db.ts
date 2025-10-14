@@ -1,8 +1,11 @@
 import Database from 'better-sqlite3'
 import { Article } from '../renderer/src/types/Article'
+import path from 'path'
+import { app } from 'electron'
 
 // database setup
-const db = new Database('cache.sqlite')
+const dbPath = path.join(app.getPath('userData'), 'cache.sqlite')
+const db = new Database(dbPath)
 db.exec(`
   CREATE TABLE IF NOT EXISTS articles (
     id INTEGER PRIMARY KEY,
@@ -10,7 +13,11 @@ db.exec(`
     last_modified INTEGER
   )
 `)
-
+// Migration: Add column if missing
+const columns = db.prepare(`PRAGMA table_info(articles);`).all()
+if (!columns.some((col) => col.name === 'data')) {
+  db.prepare(`ALTER TABLE articles ADD COLUMN data TEXT;`).run()
+}
 // crud functions
 
 export interface ArticleRow {
