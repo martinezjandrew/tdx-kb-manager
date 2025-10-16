@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*' # only run on version tags such as v1.0.0
+permissions:
+  contents: write
 jobs:
   release:
     runs-on: ${{ matrix.os }}
