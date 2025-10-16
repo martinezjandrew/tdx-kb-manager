@@ -1,6 +1,6 @@
 {
   "name": "tdx-kb-manager",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Mange TeamDynamix KB Articles through a table view.",
   "main": "./out/main/index.js",
   "author": "andrewjmartinez.me",
