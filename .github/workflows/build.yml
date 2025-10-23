@@ -35,6 +35,8 @@ jobs:
 
       - name: Build Electron app
         run: npm run ${{ matrix.build_script }}
+        env:
+          DEBUG: electron-builder
 
       - name: Package/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
