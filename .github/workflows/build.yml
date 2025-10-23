@@ -38,13 +38,18 @@ jobs:
         env:
           DEBUG: electron-builder
 
-      - name: Package/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
+          name: ${{ matrix.os }}-build
+          path: dist/*
 
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: true
+      - name: Create Release
+        if: matrix.os == 'ubuntu-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

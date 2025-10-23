@@ -29,12 +29,6 @@
       "out/**/*",
       "package.json"
     ],
-    "extraResources": [
-      {
-        "from": "assets/",
-        "to": "assets"
-      }
-    ],
     "linux": {
       "target": [
         "AppImage"
