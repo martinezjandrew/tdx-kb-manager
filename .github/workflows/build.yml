@@ -3,9 +3,11 @@ name: Build/release
 on:
   push:
     tags:
-      - 'v*' # only run on version tags such as v1.0.0
+      - 'v*' # only run on version tags like v1.0.0
+
 permissions:
   contents: write
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -14,41 +16,41 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            build_script: build:linux
+            forge_script: make-linux
           - os: macos-latest
-            build_script: build:mac
+            forge_script: make-mac
           - os: windows-latest
-            build_script: build:win
+            forge_script: make-win
 
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Electron app
-        run: npm run ${{ matrix.build_script }}
+      - name: Build Electron app with Forge
+        run: npm run ${{ matrix.forge_script }}
         env:
-          DEBUG: electron-builder
+          DEBUG: electron-forge:*
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-build
-          path: dist/*
+          path: out/make/*
 
       - name: Create Release
         if: matrix.os == 'ubuntu-latest'
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*
+          files: out/make/*
           draft: false
           prerelease: false
         env:
